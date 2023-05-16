@@ -17,8 +17,12 @@ app.get("/", (req, res) => {
 
 app.post("/comment", (req, res) => {
   console.log("Received a webhook from Figma:", req.body);
+  const commentText =
+    req.body.comment && req.body.comment[0]
+      ? req.body.comment[0].text
+      : "No comment text found";
   chatIds.forEach((chatId) => {
-    bot.sendMessage(chatId, "Received a webhook from Figma");
+    bot.sendMessage(chatId, `Received a webhook from Figma: ${commentText}`);
   });
   res.status(200).send("Received");
 });
@@ -26,7 +30,12 @@ app.post("/comment", (req, res) => {
 bot.on("message", (msg) => {
   if (msg.text.toString().toLowerCase() === "/start") {
     console.log("Received /start command from chat ID:", msg.chat.id);
-    chatIds.add(msg.chat.id); // Add the chat ID to the Set
+    chatIds.add(msg.chat.id);
+  }
+
+  if (msg.text.toString().toLowerCase() === "/stop") {
+    console.log("Received /stop command from chat ID:", msg.chat.id);
+    chatIds.delete(msg.chat.id);
   }
 });
 
