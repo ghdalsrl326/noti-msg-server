@@ -1,9 +1,10 @@
 const express = require("express");
 const cors = require("cors");
-// const TelegramBot = require("node-telegram-bot-api");
-// const token = "5992399200:AAG4RT6sjz4m5ZeK73R2Sv7lr5tUGXx4wRA";
+const TelegramBot = require("node-telegram-bot-api");
+const token = "5992399200:AAG4RT6sjz4m5ZeK73R2Sv7lr5tUGXx4wRA";
 
-// const bot = new TelegramBot(token, { polling: true });
+const bot = new TelegramBot(token, { polling: true });
+let chatIds = new Set();
 
 const app = express();
 app.use(express.json());
@@ -16,16 +17,17 @@ app.get("/", (req, res) => {
 
 app.post("/comment", (req, res) => {
   console.log("Received a webhook from Figma:", req.body);
+  chatIds.forEach((chatId) => {
+    bot.sendMessage(chatId, "Received a webhook from Figma");
+  });
   res.status(200).send("Received");
 });
 
-// bot.setWebHook;
+bot.on("message", (msg) => {
+  if (msg.text.toString().toLowerCase() === "/start") {
+    console.log("Received /start command from chat ID:", msg.chat.id);
+    chatIds.add(msg.chat.id); // Add the chat ID to the Set
+  }
+});
 
-// bot.on("message", (msg) => {
-//   const chatId = msg.chat.id;
-
-//   bot.sendMessage(chatId, "Received your message");
-// });
-
-// http listen port 생성 서버 실행
 app.listen(8000, () => console.log("Noti - Server is running on port 8000"));
